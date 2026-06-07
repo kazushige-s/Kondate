@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Title, Text, Badge, Loader } from '@mantine/core';
+import { Title, Text, Badge, Button, Group, Collapse, Loader, TextInput } from '@mantine/core';
 import { revertMealDate, updateMealName } from '../api/meals';
 import { Meal } from '../types';
 
@@ -18,8 +18,7 @@ const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 function parseLocalDate(dateStr: string) {
   const [y, m, d] = dateStr.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  return { year: y, month: m, day: d, weekday: WEEKDAYS[dt.getDay()] };
+  return { year: y, month: m, day: d, weekday: WEEKDAYS[new Date(y, m - 1, d).getDay()] };
 }
 
 function formatDate(dateStr: string): string {
@@ -67,27 +66,21 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
 
   if (editing) {
     return (
-      <li className="flex items-center gap-2 px-4 py-2.5">
-        <input
-          type="text"
+      <li className="px-4 py-2.5 space-y-2">
+        <TextInput
           value={editName}
-          onChange={e => setEditName(e.target.value)}
+          onChange={e => setEditName(e.currentTarget.value)}
           autoFocus
-          className="flex-1 border border-teal-500 rounded-lg px-2 py-1 text-sm focus:outline-none"
+          size="xs"
         />
-        <button
-          onClick={handleSaveName}
-          disabled={savingName || !editName.trim()}
-          className="text-xs text-teal-600 font-bold px-2 py-1 shrink-0"
-        >
-          保存
-        </button>
-        <button
-          onClick={() => { setEditing(false); setEditName(meal.name); }}
-          className="text-xs text-gray-400 px-2 py-1 shrink-0"
-        >
-          ✕
-        </button>
+        <Group gap="xs">
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">
+            保存
+          </Button>
+          <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
+            ✕
+          </Button>
+        </Group>
       </li>
     );
   }
@@ -96,33 +89,21 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
     <li className="flex items-center gap-2 px-4 py-2.5">
       <Text size="sm" className="flex-1 min-w-0 truncate">{meal.name}</Text>
       {meal.season && (
-        <Badge size="xs" color={SEASON_COLOR[meal.season]} variant="light">
-          {meal.season}
-        </Badge>
+        <Badge size="xs" color={SEASON_COLOR[meal.season]} variant="light">{meal.season}</Badge>
       )}
-      <button onClick={() => setEditing(true)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded shrink-0">
-        編集
-      </button>
-      <button
-        onClick={handleRevert}
-        disabled={reverting}
-        className="text-xs text-gray-400 hover:text-teal-600 px-1.5 py-1 rounded shrink-0"
-      >
-        {reverting ? '…' : '戻す'}
-      </button>
+      <Button size="xs" variant="subtle" color="gray" onClick={() => setEditing(true)}>編集</Button>
+      <Button size="xs" variant="subtle" color="teal" loading={reverting} onClick={handleRevert}>戻す</Button>
     </li>
   );
 }
 
 export default function MealList({ meals, loading, error, onReverted, onNameUpdated }: Props) {
-  // 日付でグループ化
   const byDate = meals.reduce<Record<string, Meal[]>>((acc, meal) => {
     if (!acc[meal.date]) acc[meal.date] = [];
     acc[meal.date].push(meal);
     return acc;
   }, {});
 
-  // 月でグループ化
   const byMonth: Record<string, string[]> = {};
   Object.keys(byDate)
     .sort((a, b) => (a < b ? 1 : -1))
@@ -134,18 +115,16 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
 
   const months = Object.keys(byMonth);
 
-  // 最新月だけ最初から開く（Hooksはreturnより前）
-  const [collapsed, setCollapsed] = useState<Set<string>>(
-    () => new Set(months.slice(1))
-  );
+  // 全月を折り畳んだ状態で開始。openedに追加された月のみ展開する
+  const [opened, setOpened] = useState<Set<string>>(new Set());
 
   if (loading) return <div className="flex justify-center py-16"><Loader color="teal" /></div>;
   if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
   if (meals.length === 0) return <Text c="dimmed" ta="center" py="xl">まだ登録されていません</Text>;
 
   function toggle(month: string) {
-    setCollapsed(prev => {
-      const next = new Set(Array.from(prev));
+    setOpened(prev => {
+      const next = new Set(prev);
       next.has(month) ? next.delete(month) : next.add(month);
       return next;
     });
@@ -155,7 +134,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
     <div className="space-y-3">
       <Title order={5} mb="sm">献立一覧</Title>
       {months.map(month => {
-        const isOpen = !collapsed.has(month);
+        const isOpen = opened.has(month);
         const dates = byMonth[month];
         const total = dates.reduce((n, d) => n + byDate[d].length, 0);
 
@@ -172,7 +151,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
               </span>
             </button>
 
-            {isOpen && (
+            <Collapse expanded={isOpen}>
               <div className="border-t border-gray-100">
                 {dates.map(date => (
                   <div key={date}>
@@ -187,7 +166,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
                   </div>
                 ))}
               </div>
-            )}
+            </Collapse>
           </div>
         );
       })}

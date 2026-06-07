@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Title, Text, Button, Loader } from '@mantine/core';
+import { Title, Text, Button, Group, Loader, TextInput } from '@mantine/core';
 import { updateMealDate, updateMealName, deleteMeal } from '../api/meals';
 import { Meal } from '../types';
 
@@ -73,53 +73,45 @@ function MealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
   if (editing) {
     return (
       <li className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-2">
-        <input
-          type="text"
+        <TextInput
           value={editName}
-          onChange={e => setEditName(e.target.value)}
+          onChange={e => setEditName(e.currentTarget.value)}
           autoFocus
-          className="w-full border border-teal-500 rounded-lg px-3 py-2 text-sm focus:outline-none"
+          error={nameError}
         />
-        {nameError && <Text size="xs" c="red">{nameError}</Text>}
-        <div className="flex gap-2">
-          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} style={{ background: '#2d7a5a' }}>
+        <Group gap="xs">
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">
             保存
           </Button>
           <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
             キャンセル
           </Button>
-        </div>
+        </Group>
       </li>
     );
   }
 
   return (
     <li className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-2">
-      <div className="flex items-center justify-between gap-2">
+      <Group justify="space-between" gap="xs">
         <Text size="sm" fw={500} className="flex-1 min-w-0 truncate">{meal.name}</Text>
-        <div className="flex items-center gap-1 shrink-0">
-          <button onClick={() => setEditing(true)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded">
-            編集
-          </button>
-          <button onClick={handleDelete} disabled={deleting} className="text-xs text-red-400 hover:text-red-600 px-1.5 py-1 rounded">
-            削除
-          </button>
-        </div>
-      </div>
-      <div className="space-y-1">
-        <div className="flex gap-2 items-center">
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-teal-600"
-          />
-          <Button size="xs" loading={savingDate} onClick={handleConfirmDate} style={{ background: '#2d7a5a' }}>
-            確定
-          </Button>
-        </div>
-        {dateError && <Text size="xs" c="red">{dateError}</Text>}
-      </div>
+        <Group gap={4}>
+          <Button size="xs" variant="subtle" color="gray" onClick={() => setEditing(true)}>編集</Button>
+          <Button size="xs" variant="subtle" color="red" loading={deleting} onClick={handleDelete}>削除</Button>
+        </Group>
+      </Group>
+      <Group gap="xs">
+        <input
+          type="date"
+          value={date}
+          onChange={e => setDate(e.target.value)}
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-teal-600"
+        />
+        <Button size="xs" loading={savingDate} onClick={handleConfirmDate} color="teal">
+          食べた
+        </Button>
+      </Group>
+      {dateError && <Text size="xs" c="red">{dateError}</Text>}
     </li>
   );
 }
@@ -131,7 +123,7 @@ export default function ThisWeek({ meals, loading, error, onDateSet, onNameUpdat
   return (
     <div>
       <Title order={5} mb="xs">食材あり</Title>
-      <Text size="xs" c="dimmed" mb="md">日付を入力して「確定」すると一覧に移動します</Text>
+      <Text size="xs" c="dimmed" mb="md">日付を入力して「食べた」を押すと一覧に移動します</Text>
       {meals.length === 0 ? (
         <Text size="sm" c="dimmed" ta="center" py="xl">食材ありの料理はありません</Text>
       ) : (

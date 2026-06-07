@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Paper, TextInput, Select, Button, Stack, Title, Text } from '@mantine/core';
+import { Paper, TextInput, Select, Button, Stack, Group, Title, Text } from '@mantine/core';
 import { addMeal, updateMealName, deleteMeal, setMealReady } from '../api/meals';
 import { Meal, Season } from '../types';
 
@@ -66,27 +66,21 @@ function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
 
   if (editing) {
     return (
-      <li className="flex items-center gap-2 py-2 border-b border-gray-100 last:border-0">
-        <input
-          type="text"
+      <li className="py-2 border-b border-gray-100 last:border-0 space-y-2">
+        <TextInput
           value={editName}
-          onChange={e => setEditName(e.target.value)}
+          onChange={e => setEditName(e.currentTarget.value)}
           autoFocus
-          className="flex-1 border border-teal-500 rounded-lg px-2 py-1 text-sm focus:outline-none"
+          size="xs"
         />
-        <button
-          onClick={handleSaveName}
-          disabled={savingName || !editName.trim()}
-          className="text-xs text-teal-600 font-bold px-2 py-1"
-        >
-          保存
-        </button>
-        <button
-          onClick={() => { setEditing(false); setEditName(meal.name); }}
-          className="text-xs text-gray-400 px-2 py-1"
-        >
-          ✕
-        </button>
+        <Group gap="xs">
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">
+            保存
+          </Button>
+          <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
+            ✕
+          </Button>
+        </Group>
       </li>
     );
   }
@@ -94,12 +88,8 @@ function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
   return (
     <li className="flex items-center gap-1 py-2 border-b border-gray-100 last:border-0">
       <Text size="sm" className="flex-1 min-w-0 truncate">{meal.name}</Text>
-      <button onClick={() => setEditing(true)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded">
-        編集
-      </button>
-      <button onClick={handleDelete} disabled={deleting} className="text-xs text-red-400 hover:text-red-600 px-1.5 py-1 rounded">
-        削除
-      </button>
+      <Button size="xs" variant="subtle" color="gray" onClick={() => setEditing(true)}>編集</Button>
+      <Button size="xs" variant="subtle" color="red" loading={deleting} onClick={handleDelete}>削除</Button>
       <Button size="xs" variant="light" color="teal" loading={savingComplete} onClick={handleComplete}>
         配達完了
       </Button>
@@ -137,7 +127,7 @@ export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpda
   return (
     <div className="space-y-4">
       <Paper shadow="xs" p="lg" radius="md">
-        <Title order={5} mb="xs">献立に追加</Title>
+        <Title order={5} mb="md">献立に追加</Title>
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             <TextInput
@@ -157,7 +147,7 @@ export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpda
             />
             {error && <Text size="sm" c="red">{error}</Text>}
             {success && <Text size="sm" c="teal" fw={600}>追加しました！</Text>}
-            <Button type="submit" loading={loading} disabled={!name.trim()} fullWidth style={{ background: '#2d7a5a' }}>
+            <Button type="submit" loading={loading} disabled={!name.trim()} fullWidth color="teal">
               追加する
             </Button>
           </Stack>
