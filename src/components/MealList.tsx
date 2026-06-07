@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Title, Text, Badge, Loader } from '@mantine/core';
-import { revertMealDate } from '../api/meals';
+import { revertMealDate, updateMealName } from '../api/meals';
 import { Meal } from '../types';
 
 interface Props {
@@ -8,6 +8,7 @@ interface Props {
   loading: boolean;
   error: string;
   onReverted: (updated: Meal) => void;
+  onNameUpdated: (updated: Meal) => void;
 }
 
 const SEASON_COLOR: Record<string, string> = {
@@ -31,32 +32,89 @@ function getMonthKey(dateStr: string): string {
   return `${year}年${month}月`;
 }
 
-function RevertButton({ meal, onReverted }: { meal: Meal; onReverted: (m: Meal) => void }) {
-  const [loading, setLoading] = useState(false);
+function MealRow({ meal, onReverted, onNameUpdated }: {
+  meal: Meal;
+  onReverted: (m: Meal) => void;
+  onNameUpdated: (m: Meal) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [editName, setEditName] = useState(meal.name);
+  const [savingName, setSavingName] = useState(false);
+  const [reverting, setReverting] = useState(false);
+
+  async function handleSaveName() {
+    if (!editName.trim()) return;
+    setSavingName(true);
+    try {
+      const updated = await updateMealName(meal.id, editName.trim());
+      onNameUpdated(updated);
+      setEditing(false);
+    } finally {
+      setSavingName(false);
+    }
+  }
 
   async function handleRevert() {
     if (!window.confirm(`「${meal.name}」を今週に戻しますか？`)) return;
-    setLoading(true);
+    setReverting(true);
     try {
       const updated = await revertMealDate(meal.id);
       onReverted(updated);
     } finally {
-      setLoading(false);
+      setReverting(false);
     }
   }
 
+  if (editing) {
+    return (
+      <li className="flex items-center gap-2 px-4 py-2.5">
+        <input
+          type="text"
+          value={editName}
+          onChange={e => setEditName(e.target.value)}
+          autoFocus
+          className="flex-1 border border-teal-500 rounded-lg px-2 py-1 text-sm focus:outline-none"
+        />
+        <button
+          onClick={handleSaveName}
+          disabled={savingName || !editName.trim()}
+          className="text-xs text-teal-600 font-bold px-2 py-1 shrink-0"
+        >
+          保存
+        </button>
+        <button
+          onClick={() => { setEditing(false); setEditName(meal.name); }}
+          className="text-xs text-gray-400 px-2 py-1 shrink-0"
+        >
+          ✕
+        </button>
+      </li>
+    );
+  }
+
   return (
-    <button
-      onClick={handleRevert}
-      disabled={loading}
-      className="text-xs text-gray-400 hover:text-teal-600 px-1.5 py-1 rounded shrink-0"
-    >
-      {loading ? '…' : '戻す'}
-    </button>
+    <li className="flex items-center gap-2 px-4 py-2.5">
+      <Text size="sm" className="flex-1 min-w-0 truncate">{meal.name}</Text>
+      {meal.season && (
+        <Badge size="xs" color={SEASON_COLOR[meal.season]} variant="light">
+          {meal.season}
+        </Badge>
+      )}
+      <button onClick={() => setEditing(true)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded shrink-0">
+        編集
+      </button>
+      <button
+        onClick={handleRevert}
+        disabled={reverting}
+        className="text-xs text-gray-400 hover:text-teal-600 px-1.5 py-1 rounded shrink-0"
+      >
+        {reverting ? '…' : '戻す'}
+      </button>
+    </li>
   );
 }
 
-export default function MealList({ meals, loading, error, onReverted }: Props) {
+export default function MealList({ meals, loading, error, onReverted, onNameUpdated }: Props) {
   // 日付でグループ化
   const byDate = meals.reduce<Record<string, Meal[]>>((acc, meal) => {
     if (!acc[meal.date]) acc[meal.date] = [];
@@ -123,15 +181,7 @@ export default function MealList({ meals, loading, error, onReverted }: Props) {
                     </div>
                     <ul className="divide-y divide-gray-50">
                       {byDate[date].map(meal => (
-                        <li key={meal.id} className="flex items-center gap-2 px-4 py-2.5">
-                          <Text size="sm" className="flex-1 min-w-0 truncate">{meal.name}</Text>
-                          {meal.season && (
-                            <Badge size="xs" color={SEASON_COLOR[meal.season]} variant="light">
-                              {meal.season}
-                            </Badge>
-                          )}
-                          <RevertButton meal={meal} onReverted={onReverted} />
-                        </li>
+                        <MealRow key={meal.id} meal={meal} onReverted={onReverted} onNameUpdated={onNameUpdated} />
                       ))}
                     </ul>
                   </div>

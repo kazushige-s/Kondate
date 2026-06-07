@@ -78,7 +78,7 @@ export default function App() {
             />
           )}
           {tab === 'list' && (
-            <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} />
+            <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} onNameUpdated={update} />
           )}
           {tab === 'forgotten' && (
             <ForgottenMeals meals={datedMeals} loading={loading} error={error} />

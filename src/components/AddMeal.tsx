@@ -137,8 +137,7 @@ export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpda
   return (
     <div className="space-y-4">
       <Paper shadow="xs" p="lg" radius="md">
-        <Title order={5} mb="xs">今週の献立に追加</Title>
-        <Text size="xs" c="dimmed" mb="md">登録すると注文中リストに追加されます</Text>
+        <Title order={5} mb="xs">献立に追加</Title>
         <form onSubmit={handleSubmit}>
           <Stack gap="md">
             <TextInput
