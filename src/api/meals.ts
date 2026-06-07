@@ -24,6 +24,27 @@ export async function updateMealDate(id: string, date: string): Promise<Meal> {
   return res.json();
 }
 
+export async function updateMealName(id: string, name: string): Promise<Meal> {
+  const res = await fetch(`${API_BASE}/meals/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? '更新に失敗しました');
+  }
+  return res.json();
+}
+
+export async function deleteMeal(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/meals/${id}`, { method: 'DELETE' });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? '削除に失敗しました');
+  }
+}
+
 export async function addMeal(
   name: string,
   date: string,

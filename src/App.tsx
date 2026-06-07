@@ -36,6 +36,14 @@ export default function App() {
     setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
   }
 
+  function handleNameUpdated(updated: Meal) {
+    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
+  }
+
+  function handleDeleted(id: string) {
+    setMeals(prev => prev.filter(m => m.id !== id));
+  }
+
   const datedMeals = meals.filter(m => m.date);
   const undatedMeals = meals.filter(m => !m.date);
 
@@ -59,6 +67,8 @@ export default function App() {
               loading={loading}
               error={error}
               onDateSet={handleDateSet}
+              onNameUpdated={handleNameUpdated}
+              onDeleted={handleDeleted}
             />
           )}
           {tab === 'list' && <MealList meals={datedMeals} loading={loading} error={error} />}

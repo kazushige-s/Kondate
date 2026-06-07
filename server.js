@@ -64,16 +64,30 @@ app.post('/api/meals', async (req, res) => {
 
 app.patch('/api/meals/:id', async (req, res) => {
   const { id } = req.params;
-  const { date } = req.body;
-  if (!date) return res.status(400).json({ error: '日付は必須です' });
+  const { date, name } = req.body;
+  const properties = {};
+  if (name !== undefined) {
+    properties['献立'] = { title: [{ text: { content: name } }] };
+  }
+  if (date !== undefined) {
+    properties['日付'] = date ? { date: { start: date } } : { date: null };
+  }
+  if (Object.keys(properties).length === 0) {
+    return res.status(400).json({ error: '更新する項目がありません' });
+  }
   try {
-    const response = await notion.pages.update({
-      page_id: id,
-      properties: {
-        '日付': { date: { start: date } },
-      },
-    });
+    const response = await notion.pages.update({ page_id: id, properties });
     res.json(parseMeal(response));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/meals/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    await notion.pages.update({ page_id: id, archived: true });
+    res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
