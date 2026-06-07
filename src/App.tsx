@@ -44,6 +44,10 @@ export default function App() {
     setMeals(prev => prev.filter(m => m.id !== id));
   }
 
+  function handleReverted(updated: Meal) {
+    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
+  }
+
   const datedMeals = meals.filter(m => m.date);
   const undatedMeals = meals.filter(m => !m.date);
 
@@ -71,7 +75,7 @@ export default function App() {
               onDeleted={handleDeleted}
             />
           )}
-          {tab === 'list' && <MealList meals={datedMeals} loading={loading} error={error} />}
+          {tab === 'list' && <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} />}
           {tab === 'forgotten' && <ForgottenMeals meals={datedMeals} loading={loading} error={error} />}
         </div>
       </AppShell.Main>
