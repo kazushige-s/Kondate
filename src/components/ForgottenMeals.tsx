@@ -52,7 +52,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
 
   return (
     <div>
-      <Title order={5} mb="xs">しばらく食べていない料理</Title>
+      <Title order={5} mb="xs">リマインド</Title>
       <Text size="xs" c="dimmed" mb="md">1ヶ月以上食べていない料理です</Text>
       {forgotten.length === 0 ? (
         <Text c="dimmed" ta="center" py="xl">1ヶ月以上食べていない料理はありません</Text>

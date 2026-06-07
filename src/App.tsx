@@ -12,11 +12,11 @@ const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'add', label: '登録', icon: '＋' },
   { id: 'thisweek', label: '今週', icon: '📅' },
   { id: 'list', label: '一覧', icon: '≡' },
-  { id: 'forgotten', label: '忘れ物', icon: '！' },
+  { id: 'forgotten', label: 'リマインド', icon: '！' },
 ];
 
 export default function App() {
-  const [tab, setTab] = useState<Tab>('thisweek');
+  const [tab, setTab] = useState<Tab>('add');
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,16 +28,12 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
+  function update(updated: Meal) {
+    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
+  }
+
   function handleAdded(meal: Meal) {
-    setMeals(prev => [meal, ...prev].sort((a, b) => (a.date < b.date ? 1 : -1)));
-  }
-
-  function handleDateSet(updated: Meal) {
-    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
-  }
-
-  function handleNameUpdated(updated: Meal) {
-    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
+    setMeals(prev => [meal, ...prev]);
   }
 
   function handleDeleted(id: string) {
@@ -45,17 +41,15 @@ export default function App() {
   }
 
   function handleReverted(updated: Meal) {
-    setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
+    update(updated);
   }
 
-  const datedMeals = meals.filter(m => m.date);
-  const undatedMeals = meals.filter(m => !m.date);
+  const orderingMeals = meals.filter(m => !m.date && !m.isReady);
+  const readyMeals   = meals.filter(m => !m.date && m.isReady);
+  const datedMeals   = meals.filter(m => m.date);
 
   return (
-    <AppShell
-      header={{ height: 56 }}
-      footer={{ height: 64 }}
-    >
+    <AppShell header={{ height: 56 }} footer={{ height: 64 }}>
       <AppShell.Header>
         <Group h="100%" px="md" style={{ background: '#2d7a5a' }}>
           <Title order={4} c="white">我が家の献立</Title>
@@ -64,19 +58,31 @@ export default function App() {
 
       <AppShell.Main className="bg-gray-50">
         <div className="max-w-lg mx-auto px-4 py-5 pb-8">
-          {tab === 'add' && <AddMeal onAdded={handleAdded} />}
-          {tab === 'thisweek' && (
-            <ThisWeek
-              meals={undatedMeals}
-              loading={loading}
-              error={error}
-              onDateSet={handleDateSet}
-              onNameUpdated={handleNameUpdated}
+          {tab === 'add' && (
+            <AddMeal
+              onAdded={handleAdded}
+              orderingMeals={orderingMeals}
+              onComplete={update}
+              onNameUpdated={update}
               onDeleted={handleDeleted}
             />
           )}
-          {tab === 'list' && <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} />}
-          {tab === 'forgotten' && <ForgottenMeals meals={datedMeals} loading={loading} error={error} />}
+          {tab === 'thisweek' && (
+            <ThisWeek
+              meals={readyMeals}
+              loading={loading}
+              error={error}
+              onDateSet={update}
+              onNameUpdated={update}
+              onDeleted={handleDeleted}
+            />
+          )}
+          {tab === 'list' && (
+            <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} />
+          )}
+          {tab === 'forgotten' && (
+            <ForgottenMeals meals={datedMeals} loading={loading} error={error} />
+          )}
         </div>
       </AppShell.Main>
 
