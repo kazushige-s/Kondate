@@ -17,6 +17,7 @@ function parseMeal(page) {
     name: page.properties['献立']?.title?.[0]?.plain_text ?? '',
     date: page.properties['日付']?.date?.start ?? '',
     season: page.properties['季節限定']?.select?.name ?? null,
+    isReady: page.properties['食材あり']?.checkbox ?? false,
   };
 }
 
@@ -64,13 +65,16 @@ app.post('/api/meals', async (req, res) => {
 
 app.patch('/api/meals/:id', async (req, res) => {
   const { id } = req.params;
-  const { date, name } = req.body;
+  const { date, name, isReady } = req.body;
   const properties = {};
   if (name !== undefined) {
     properties['献立'] = { title: [{ text: { content: name } }] };
   }
   if (date !== undefined) {
     properties['日付'] = date ? { date: { start: date } } : { date: null };
+  }
+  if (isReady !== undefined) {
+    properties['食材あり'] = { checkbox: isReady };
   }
   if (Object.keys(properties).length === 0) {
     return res.status(400).json({ error: '更新する項目がありません' });

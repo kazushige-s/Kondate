@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Title, Text, Button, Loader } from '@mantine/core';
-import { updateMealDate, updateMealName, deleteMeal } from '../api/meals';
+import { updateMealDate, updateMealName, deleteMeal, setMealReady } from '../api/meals';
 import { Meal } from '../types';
 
 interface Props {
@@ -19,19 +19,19 @@ function todayString(): string {
 
 interface MealRowProps {
   meal: Meal;
-  isReady: boolean;
-  onComplete: (id: string) => void;
+  onComplete: (updated: Meal) => void;
   onDateSet: (updated: Meal) => void;
   onNameUpdated: (updated: Meal) => void;
   onDeleted: (id: string) => void;
 }
 
-function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDeleted }: MealRowProps) {
+function MealRow({ meal, onComplete, onDateSet, onNameUpdated, onDeleted }: MealRowProps) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(meal.name);
   const [date, setDate] = useState(todayString());
   const [savingName, setSavingName] = useState(false);
   const [savingDate, setSavingDate] = useState(false);
+  const [savingReady, setSavingReady] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [nameError, setNameError] = useState('');
   const [dateError, setDateError] = useState('');
@@ -57,8 +57,18 @@ function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDelete
     try {
       await deleteMeal(meal.id);
       onDeleted(meal.id);
-    } catch (err: any) {
+    } catch {
       setDeleting(false);
+    }
+  }
+
+  async function handleComplete() {
+    setSavingReady(true);
+    try {
+      const updated = await setMealReady(meal.id, true);
+      onComplete(updated);
+    } finally {
+      setSavingReady(false);
     }
   }
 
@@ -86,20 +96,10 @@ function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDelete
         />
         {nameError && <Text size="xs" c="red">{nameError}</Text>}
         <div className="flex gap-2">
-          <Button
-            size="xs"
-            loading={savingName}
-            disabled={!editName.trim()}
-            onClick={handleSaveName}
-            style={{ background: '#2d7a5a' }}
-          >
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} style={{ background: '#2d7a5a' }}>
             保存
           </Button>
-          <Button
-            size="xs"
-            variant="default"
-            onClick={() => { setEditing(false); setEditName(meal.name); }}
-          >
+          <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
             キャンセル
           </Button>
         </div>
@@ -112,30 +112,17 @@ function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDelete
       <div className="flex items-center justify-between gap-2">
         <Text size="sm" fw={500} className="flex-1 min-w-0 truncate">{meal.name}</Text>
         <div className="flex items-center gap-1 shrink-0">
-          <button
-            onClick={() => setEditing(true)}
-            className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded"
-          >
+          <button onClick={() => setEditing(true)} className="text-xs text-gray-400 hover:text-gray-600 px-1.5 py-1 rounded">
             編集
           </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="text-xs text-red-400 hover:text-red-600 px-1.5 py-1 rounded"
-          >
+          <button onClick={handleDelete} disabled={deleting} className="text-xs text-red-400 hover:text-red-600 px-1.5 py-1 rounded">
             削除
           </button>
         </div>
       </div>
 
-      {!isReady ? (
-        <Button
-          size="xs"
-          variant="light"
-          color="teal"
-          onClick={() => onComplete(meal.id)}
-          fullWidth
-        >
+      {!meal.isReady ? (
+        <Button size="xs" variant="light" color="teal" loading={savingReady} onClick={handleComplete} fullWidth>
           注文完了 →
         </Button>
       ) : (
@@ -147,12 +134,7 @@ function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDelete
               onChange={e => setDate(e.target.value)}
               className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-teal-600"
             />
-            <Button
-              size="xs"
-              loading={savingDate}
-              onClick={handleConfirmDate}
-              style={{ background: '#2d7a5a' }}
-            >
+            <Button size="xs" loading={savingDate} onClick={handleConfirmDate} style={{ background: '#2d7a5a' }}>
               確定
             </Button>
           </div>
@@ -164,17 +146,15 @@ function MealRow({ meal, isReady, onComplete, onDateSet, onNameUpdated, onDelete
 }
 
 export default function ThisWeek({ meals, loading, error, onDateSet, onNameUpdated, onDeleted }: Props) {
-  const [readyIds, setReadyIds] = useState<Set<string>>(new Set());
-
   if (loading) return <div className="flex justify-center py-16"><Loader color="teal" /></div>;
   if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
 
-  function handleComplete(id: string) {
-    setReadyIds(prev => new Set(Array.from(prev).concat(id)));
-  }
+  const ordering = meals.filter(m => !m.isReady);
+  const ready = meals.filter(m => m.isReady);
 
-  const ordering = meals.filter(m => !readyIds.has(m.id));
-  const ready = meals.filter(m => readyIds.has(m.id));
+  function handleComplete(updated: Meal) {
+    onNameUpdated(updated); // isReady が変わったmealをリストに反映
+  }
 
   const rowProps = { onDateSet, onNameUpdated, onDeleted, onComplete: handleComplete };
 
@@ -186,9 +166,7 @@ export default function ThisWeek({ meals, loading, error, onDateSet, onNameUpdat
           <Text size="sm" c="dimmed" ta="center" py="md">なし</Text>
         ) : (
           <ul className="space-y-2">
-            {ordering.map(meal => (
-              <MealRow key={meal.id} meal={meal} isReady={false} {...rowProps} />
-            ))}
+            {ordering.map(meal => <MealRow key={meal.id} meal={meal} {...rowProps} />)}
           </ul>
         )}
       </div>
@@ -200,9 +178,7 @@ export default function ThisWeek({ meals, loading, error, onDateSet, onNameUpdat
           <Text size="sm" c="dimmed" ta="center" py="md">なし</Text>
         ) : (
           <ul className="space-y-2">
-            {ready.map(meal => (
-              <MealRow key={meal.id} meal={meal} isReady={true} {...rowProps} />
-            ))}
+            {ready.map(meal => <MealRow key={meal.id} meal={meal} {...rowProps} />)}
           </ul>
         )}
       </div>

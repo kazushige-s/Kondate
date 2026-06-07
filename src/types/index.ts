@@ -5,6 +5,7 @@ export interface Meal {
   name: string;
   date: string;
   season: Season | null;
+  isReady: boolean;
 }
 
 export type Tab = 'add' | 'thisweek' | 'list' | 'forgotten';
