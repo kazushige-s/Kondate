@@ -12,7 +12,6 @@ interface Props {
 }
 
 const SEASON_OPTIONS = [
-  { value: '', label: '通年' },
   { value: '春', label: '春' },
   { value: '夏', label: '夏' },
   { value: '秋', label: '秋' },
@@ -99,7 +98,7 @@ function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
 
 export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpdated, onDeleted }: Props) {
   const [name, setName] = useState('');
-  const [season, setSeason] = useState<string>('');
+  const [season, setSeason] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -114,7 +113,7 @@ export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpda
       const meal = await addMeal(name.trim(), '', season as Season || undefined);
       onAdded(meal);
       setName('');
-      setSeason('');
+      setSeason(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2000);
     } catch (err: any) {
@@ -140,10 +139,11 @@ export default function AddMeal({ onAdded, orderingMeals, onComplete, onNameUpda
             />
             <Select
               label="季節限定（任意）"
+              placeholder="通年"
               data={SEASON_OPTIONS}
               value={season}
-              onChange={v => setSeason(v ?? '')}
-              allowDeselect={false}
+              onChange={setSeason}
+              clearable
             />
             {error && <Text size="sm" c="red">{error}</Text>}
             {success && <Text size="sm" c="teal" fw={600}>追加しました！</Text>}

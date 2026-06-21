@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* モバイルでの自動ズーム防止：フォントサイズ16px未満でiOSがズームするため */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+/* モバイルでキーボード表示時のスクロール安定化 */
+html, body, #root {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+/* iOS Safariでの安全領域対応（ノッチ・ホームバー） */
+.mantine-AppShell-header {
+  padding-top: env(safe-area-inset-top);
+}
+.mantine-AppShell-footer {
+  padding-bottom: env(safe-area-inset-bottom);
+}
