@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { MantineProvider, ColorSchemeScript } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './globals.css';
+import { MantineSetup } from '@/components/MantineSetup';
 
 export const metadata: Metadata = {
   title: '我が家の献立',
@@ -19,12 +19,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <head>
-        <ColorSchemeScript />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineSetup>{children}</MantineSetup>
       </body>
     </html>
   );

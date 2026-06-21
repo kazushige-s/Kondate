@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Title, Text, Badge, Button, Group, Collapse, Loader, TextInput, Select } from '@mantine/core';
+import { Title, Text, Badge, Button, Group, Loader, TextInput, Select } from '@mantine/core';
 import { revertMealDate, updateMealName, updateMealSeason } from '@/lib/meals-api';
 import type { Meal } from '@/types';
 
@@ -175,7 +175,13 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
               </span>
             </button>
 
-            <Collapse expanded={isOpen}>
+            <div
+              style={{
+                maxHeight: isOpen ? '9999px' : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.25s ease',
+              }}
+            >
               <div className="border-t border-gray-100">
                 {dates.map(date => (
                   <div key={date}>
@@ -190,7 +196,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
                   </div>
                 ))}
               </div>
-            </Collapse>
+            </div>
           </div>
         );
       })}
