@@ -158,12 +158,12 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
         const total = dates.reduce((n, d) => n + byDate[d].length, 0);
 
         return (
-          <div key={month} className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div key={month} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
             <button
               onClick={() => toggle(month)}
               className="w-full flex items-center justify-between px-4 py-3 text-left"
             >
-              <span className="font-bold text-gray-700 text-sm">{month}</span>
+              <span className="font-bold text-gray-700 dark:text-gray-100 text-sm">{month}</span>
               <span className="flex items-center gap-2">
                 <span className="text-xs text-gray-400">{total}件</span>
                 <span className="text-gray-400 text-xs">{isOpen ? '▲' : '▼'}</span>
@@ -177,13 +177,13 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
                 transition: 'max-height 0.25s ease',
               }}
             >
-              <div className="border-t border-gray-100">
+              <div className="border-t border-gray-100 dark:border-gray-700">
                 {dates.map(date => (
                   <div key={date}>
-                    <div className="bg-orange-50 text-orange-600 text-xs font-bold px-4 py-1.5">
+                    <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-xs font-bold px-4 py-1.5">
                       {formatDate(date)}
                     </div>
-                    <ul className="divide-y divide-gray-50">
+                    <ul className="divide-y divide-gray-50 dark:divide-gray-700">
                       {byDate[date].map(meal => (
                         <MealRow key={meal.id} meal={meal} onReverted={onReverted} onNameUpdated={onNameUpdated} />
                       ))}

@@ -73,7 +73,7 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
 
   if (editing) {
     return (
-      <li className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-2">
+      <li className="bg-white dark:bg-gray-800 rounded-xl shadow-sm px-4 py-3 space-y-2">
         <TextInput
           value={editName}
           onChange={e => setEditName(e.currentTarget.value)}
@@ -102,7 +102,7 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500"
+          className="flex-1 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500 bg-white dark:bg-gray-700 dark:text-gray-100"
         />
         <Button size="xs" loading={savingDate} onClick={handleEaten} color="orange">食べた</Button>
       </Group>

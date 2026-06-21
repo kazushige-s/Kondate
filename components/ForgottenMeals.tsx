@@ -52,12 +52,12 @@ function SectionCard({ title, badge, defaultOpen = false, children }: {
 }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between px-4 py-3 text-left"
       >
-        <span className="font-bold text-gray-700 text-sm">{title}</span>
+        <span className="font-bold text-gray-700 dark:text-gray-100 text-sm">{title}</span>
         <span className="flex items-center gap-2">
           {badge && <span className="text-xs text-gray-400">{badge}</span>}
           <span className="text-gray-400 text-xs">{open ? '▲' : '▼'}</span>
@@ -70,7 +70,7 @@ function SectionCard({ title, badge, defaultOpen = false, children }: {
           transition: 'max-height 0.25s ease',
         }}
       >
-        <div className="border-t border-gray-100 px-4 py-3">{children}</div>
+        <div className="border-t border-gray-100 dark:border-gray-700 px-4 py-3">{children}</div>
       </div>
     </div>
   );
@@ -162,7 +162,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
       <Title order={5} mb="sm">リマインド</Title>
 
       {/* ランダム提案 */}
-      <div className="bg-white rounded-xl shadow-sm px-4 py-5 text-center">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm px-4 py-5 text-center">
         <Text size="xs" c="dimmed" mb="xs">今日はこれはどうですか？</Text>
         {randomMeal ? (
           <>
