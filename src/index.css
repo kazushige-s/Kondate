@@ -13,7 +13,4 @@ html, body, #root {
   overscroll-behavior: none;
 }
 
-/* iOS Safariでの安全領域対応（ノッチ） */
-.mantine-AppShell-header {
-  padding-top: env(safe-area-inset-top);
-}
+/* iOS Safariでの安全領域対応はApp.tsxのheaderインラインスタイルで対応済み */

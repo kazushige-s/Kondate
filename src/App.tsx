@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppShell, Group, Title } from '@mantine/core';
+import { Title } from '@mantine/core';
 import {
   MdAddCircle, MdAddCircleOutline,
   MdRestaurantMenu, MdOutlineRestaurantMenu,
@@ -50,18 +50,28 @@ export default function App() {
   const datedMeals    = meals.filter(m => m.date);
 
   return (
-    <AppShell header={{ height: 56 }}>
-      <AppShell.Header>
-        <Group h="100%" px="md" style={{ background: BRAND }}>
+    <div style={{ background: '#F9FAFB', minHeight: '100dvh' }}>
+      {/* 固定ヘッダー */}
+      <header style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        background: BRAND,
+        paddingTop: 'env(safe-area-inset-top)',
+      }}>
+        <div style={{ height: 56, display: 'flex', alignItems: 'center', paddingLeft: 16 }}>
           <Title order={4} c="white">我が家の献立</Title>
-        </Group>
-      </AppShell.Header>
+        </div>
+      </header>
 
-      <AppShell.Main className="bg-gray-50">
-        <div
-          className="max-w-lg mx-auto px-4 py-5"
-          style={{ paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}
-        >
+      {/* スクロール可能なメインコンテンツ */}
+      <main style={{
+        paddingTop: 'calc(56px + env(safe-area-inset-top))',
+        paddingBottom: 'calc(120px + env(safe-area-inset-bottom))',
+      }}>
+        <div className="max-w-lg mx-auto px-4 py-5">
           {tab === 'add' && (
             <AddMeal
               onAdded={handleAdded}
@@ -80,7 +90,7 @@ export default function App() {
             <ForgottenMeals meals={datedMeals} loading={loading} error={error} />
           )}
         </div>
-      </AppShell.Main>
+      </main>
 
       {/* フローティングナビゲーション */}
       <div style={{
@@ -135,6 +145,6 @@ export default function App() {
           })}
         </nav>
       </div>
-    </AppShell>
+    </div>
   );
 }
