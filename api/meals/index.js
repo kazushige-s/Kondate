@@ -8,7 +8,7 @@ function parseMeal(page) {
     id: page.id,
     name: page.properties['献立']?.title?.[0]?.plain_text ?? '',
     date: page.properties['日付']?.date?.start ?? '',
-    season: page.properties['季節限定']?.select?.name ?? null,
+    season: page.properties['季節限定']?.multi_select?.[0]?.name ?? null,
     isReady: page.properties['食材あり']?.checkbox ?? false,
   };
 }
@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
         '献立': { title: [{ text: { content: name } }] },
         ...(date ? { '日付': { date: { start: date } } } : {}),
       };
-      if (season) properties['季節限定'] = { select: { name: season } };
+      if (season) properties['季節限定'] = { multi_select: [{ name: season }] };
       const response = await notion.pages.create({
         parent: { database_id: DATABASE_ID },
         properties,

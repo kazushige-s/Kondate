@@ -7,7 +7,7 @@ function parseMeal(page) {
     id: page.id,
     name: page.properties['献立']?.title?.[0]?.plain_text ?? '',
     date: page.properties['日付']?.date?.start ?? '',
-    season: page.properties['季節限定']?.select?.name ?? null,
+    season: page.properties['季節限定']?.multi_select?.[0]?.name ?? null,
     isReady: page.properties['食材あり']?.checkbox ?? false,
   };
 }
