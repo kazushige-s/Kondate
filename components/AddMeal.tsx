@@ -73,7 +73,7 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
 
   if (editing) {
     return (
-      <li className="bg-white dark:bg-gray-800 rounded-xl shadow-sm px-4 py-3 space-y-2">
+      <li className="py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 space-y-2">
         <TextInput
           value={editName}
           onChange={e => setEditName(e.currentTarget.value)}
@@ -89,7 +89,7 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
   }
 
   return (
-    <li className="bg-white rounded-xl shadow-sm px-4 py-3 space-y-2">
+    <li className="py-3 border-b border-gray-100 dark:border-gray-700 last:border-0 space-y-2">
       <Group justify="space-between" gap="xs">
         <Text size="sm" fw={500} className="flex-1 min-w-0 truncate">{meal.name}</Text>
         <Group gap={4}>
@@ -272,7 +272,7 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
         <Paper shadow="xs" p="lg" radius="md">
           <Title order={5} mb="xs">今週の献立</Title>
           <Text size="xs" c="dimmed" mb="md">日付を入力して「食べた」を押すと一覧に移動します</Text>
-          <ul className="space-y-2">
+          <ul>
             {readyMeals.map(meal => (
               <ReadyMealRow
                 key={meal.id}

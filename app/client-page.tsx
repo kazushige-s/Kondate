@@ -91,7 +91,7 @@ export default function ClientPage() {
           paddingRight: 12,
           justifyContent: 'space-between',
         }}>
-          <Title order={4} c="white">我が家の献立</Title>
+          <Title order={4} c="white">献立管理アプリ</Title>
           <button
             onClick={toggleDarkMode}
             aria-label={isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}

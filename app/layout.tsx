@@ -5,7 +5,7 @@ import './globals.css';
 import { MantineSetup } from '@/components/MantineSetup';
 
 export const metadata: Metadata = {
-  title: '我が家の献立',
+  title: '献立管理アプリ',
   description: '家族の献立を管理するアプリ',
 };
 
