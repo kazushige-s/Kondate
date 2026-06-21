@@ -60,7 +60,7 @@ export default function App() {
       <AppShell.Main className="bg-gray-50">
         <div
           className="max-w-lg mx-auto px-4 py-5"
-          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom))' }}
+          style={{ paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}
         >
           {tab === 'add' && (
             <AddMeal
