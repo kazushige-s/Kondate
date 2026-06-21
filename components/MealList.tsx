@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Title, Text, Badge, Button, Group, Collapse, Loader, TextInput, Select } from '@mantine/core';
-import { revertMealDate, updateMealName, updateMealSeason } from '../api/meals';
-import { Meal } from '../types';
+import { revertMealDate, updateMealName, updateMealSeason } from '@/lib/meals-api';
+import type { Meal } from '@/types';
 
 interface Props {
   meals: Meal[];
@@ -102,9 +104,7 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
           clearable
         />
         <Group gap="xs">
-          <Button size="xs" loading={saving} disabled={!editName.trim()} onClick={handleSave} color="orange">
-            保存
-          </Button>
+          <Button size="xs" loading={saving} disabled={!editName.trim()} onClick={handleSave} color="orange">保存</Button>
           <Button size="xs" variant="default" onClick={handleCancel}>✕</Button>
         </Group>
       </li>
@@ -140,11 +140,10 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
     });
 
   const months = Object.keys(byMonth);
-
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
   if (loading) return <div className="flex justify-center py-16"><Loader color="orange" /></div>;
-  if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
+  if (error)   return <Text c="red" ta="center" py="xl">{error}</Text>;
   if (meals.length === 0) return <Text c="dimmed" ta="center" py="xl">まだ登録されていません</Text>;
 
   function toggle(month: string) {

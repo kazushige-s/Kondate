@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { Title } from '@mantine/core';
 import {
@@ -5,12 +7,11 @@ import {
   MdRestaurantMenu, MdOutlineRestaurantMenu,
   MdLightbulb, MdOutlineLightbulb,
 } from 'react-icons/md';
-import './App.css';
-import { getMeals } from './api/meals';
-import { Meal, Tab } from './types';
-import AddMeal from './components/AddMeal';
-import MealList from './components/MealList';
-import ForgottenMeals from './components/ForgottenMeals';
+import { getMeals } from '@/lib/meals-api';
+import type { Meal, Tab } from '@/types';
+import AddMeal from '@/components/AddMeal';
+import MealList from '@/components/MealList';
+import ForgottenMeals from '@/components/ForgottenMeals';
 
 const BRAND = '#F97316';
 
@@ -20,7 +21,7 @@ const TABS = [
   { id: 'forgotten' as Tab, label: 'リマインド', Active: MdLightbulb        as React.ElementType, Inactive: MdOutlineLightbulb        as React.ElementType },
 ];
 
-export default function App() {
+export default function ClientPage() {
   const [tab, setTab] = useState<Tab>('add');
   const [meals, setMeals] = useState<Meal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,7 +30,7 @@ export default function App() {
   useEffect(() => {
     getMeals()
       .then(setMeals)
-      .catch(err => setError(err.message))
+      .catch(err => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -51,7 +52,6 @@ export default function App() {
 
   return (
     <div style={{ background: '#F9FAFB', minHeight: '100dvh' }}>
-      {/* 固定ヘッダー */}
       <header style={{
         position: 'fixed',
         top: 0,
@@ -66,7 +66,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* スクロール可能なメインコンテンツ */}
       <main style={{
         paddingTop: 'calc(56px + env(safe-area-inset-top))',
         paddingBottom: 'calc(120px + env(safe-area-inset-bottom))',
@@ -92,7 +91,6 @@ export default function App() {
         </div>
       </main>
 
-      {/* フローティングナビゲーション */}
       <div style={{
         position: 'fixed',
         bottom: 0,

@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { Title, Text, Button, Badge, Loader, Collapse } from '@mantine/core';
-import { Meal, Season } from '../types';
+import type { Meal, Season } from '@/types';
 
 interface Props {
   meals: Meal[];
@@ -34,8 +36,7 @@ function daysSince(dateStr: string): number {
 }
 
 function formatDaysAgo(days: number): string {
-  if (days < 30) return `${days}日前`;
-  return `約${Math.floor(days / 30)}ヶ月前`;
+  return days < 30 ? `${days}日前` : `約${Math.floor(days / 30)}ヶ月前`;
 }
 
 function formatMonthDay(dateStr: string): string {
@@ -63,9 +64,7 @@ function SectionCard({ title, badge, defaultOpen = false, children }: {
         </span>
       </button>
       <Collapse expanded={open}>
-        <div className="border-t border-gray-100 px-4 py-3">
-          {children}
-        </div>
+        <div className="border-t border-gray-100 px-4 py-3">{children}</div>
       </Collapse>
     </div>
   );
@@ -88,7 +87,6 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
     setRandomMeal(uniqueNames[Math.floor(Math.random() * uniqueNames.length)]);
   }
 
-  // 人気・不人気ランキング
   const { popularRanking, unpopularRanking } = useMemo(() => {
     const countByName = new Map<string, number>();
     for (const meal of meals) {
@@ -101,7 +99,6 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
     };
   }, [meals]);
 
-  // 1ヶ月前の1週間
   const lastMonthWeekMeals = useMemo(() => {
     const start = new Date();
     start.setMonth(start.getMonth() - 1);
@@ -119,25 +116,23 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
     return byDate;
   }, [meals]);
 
-  // 今の季節限定メニュー
   const season = currentSeason();
+
   const currentSeasonMeals = useMemo(() => {
     if (!season) return [];
     const seen = new Set<string>();
-    const result: string[] = [];
-    for (const meal of meals) {
+    return meals.reduce<string[]>((acc, meal) => {
       if (meal.season === season && !seen.has(meal.name)) {
         seen.add(meal.name);
-        result.push(meal.name);
+        acc.push(meal.name);
       }
-    }
-    return result;
+      return acc;
+    }, []);
   }, [meals, season]);
 
-  // 1ヶ月以上食べていない
   const forgottenMeals = useMemo(() => {
-    const season = currentSeason();
-    const thresholdStr = toDateStr(new Date(new Date().setMonth(new Date().getMonth() - 1)));
+    const currentSsn = currentSeason();
+    const threshold = toDateStr(new Date(new Date().setMonth(new Date().getMonth() - 1)));
     const latestByName = new Map<string, Meal>();
     for (const meal of meals) {
       const existing = latestByName.get(meal.name);
@@ -145,14 +140,14 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
     }
     return Array.from(latestByName.values())
       .filter(meal => {
-        if (meal.season && meal.season !== season) return false;
-        return meal.date < thresholdStr;
+        if (meal.season && meal.season !== currentSsn) return false;
+        return meal.date < threshold;
       })
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [meals]);
 
   if (loading) return <div className="flex justify-center py-16"><Loader color="orange" /></div>;
-  if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
+  if (error)   return <Text c="red" ta="center" py="xl">{error}</Text>;
 
   const lastMonthDates = Object.keys(lastMonthWeekMeals);
 
@@ -181,21 +176,15 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
           ) : (
             <ul className="space-y-1">
               {currentSeasonMeals.map((name, i) => (
-                <li key={i} className="py-1.5">
-                  <Text size="sm">{name}</Text>
-                </li>
+                <li key={i} className="py-1.5"><Text size="sm">{name}</Text></li>
               ))}
             </ul>
           )}
         </SectionCard>
       )}
 
-      {/* 1ヶ月以上食べていない */}
-      <SectionCard
-        title="しばらく食べていない料理"
-        badge={`${forgottenMeals.length}件`}
-        defaultOpen
-      >
+      {/* しばらく食べていない */}
+      <SectionCard title="しばらく食べていない料理" badge={`${forgottenMeals.length}件`} defaultOpen>
         {forgottenMeals.length === 0 ? (
           <Text size="sm" c="dimmed">1ヶ月以上食べていない料理はありません</Text>
         ) : (
@@ -210,7 +199,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
         )}
       </SectionCard>
 
-      {/* 1ヶ月前の1週間 */}
+      {/* 1ヶ月前の献立 */}
       <SectionCard
         title="1ヶ月前の献立"
         badge={lastMonthDates.length > 0 ? `${lastMonthDates.length}日分` : undefined}
@@ -245,9 +234,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
                   i === 0 ? 'text-yellow-500' :
                   i === 1 ? 'text-gray-400' :
                   i === 2 ? 'text-orange-400' : 'text-gray-300'
-                }`}>
-                  {i + 1}
-                </span>
+                }`}>{i + 1}</span>
                 <Text size="sm" className="flex-1 min-w-0 truncate">{name}</Text>
                 <Badge size="xs" color="orange" variant="light">{count}回</Badge>
               </li>
@@ -264,9 +251,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
           <ol className="space-y-2">
             {unpopularRanking.map(([name, count], i) => (
               <li key={name} className="flex items-center gap-2">
-                <span className="text-xs font-bold w-5 text-center shrink-0 text-gray-300">
-                  {i + 1}
-                </span>
+                <span className="text-xs font-bold w-5 text-center shrink-0 text-gray-300">{i + 1}</span>
                 <Text size="sm" className="flex-1 min-w-0 truncate">{name}</Text>
                 <Badge size="xs" color="gray" variant="light">{count}回</Badge>
               </li>

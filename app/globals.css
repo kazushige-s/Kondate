@@ -8,9 +8,7 @@ input, select, textarea {
 }
 
 /* モバイルでキーボード表示時のスクロール安定化 */
-html, body, #root {
+html, body {
   height: 100%;
   overscroll-behavior: none;
 }
-
-/* iOS Safariでの安全領域対応はApp.tsxのheaderインラインスタイルで対応済み */

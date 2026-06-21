@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Paper, TextInput, Select, Button, Group, Stack, Title, Text, SegmentedControl } from '@mantine/core';
-import { addMeal, updateMealName, updateMealDate, deleteMeal, setMealReady } from '../api/meals';
-import { Meal, Season } from '../types';
+import { addMeal, updateMealName, updateMealDate, deleteMeal, setMealReady } from '@/lib/meals-api';
+import type { Meal, Season } from '@/types';
 
 interface Props {
   onAdded: (meal: Meal) => void;
@@ -25,7 +27,6 @@ function todayString(): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 }
 
-// 今週の献立エリア用（食材あり → 日付確定で一覧へ）
 function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
   meal: Meal;
   onDateSet: (updated: Meal) => void;
@@ -69,8 +70,8 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
     try {
       const updated = await updateMealDate(meal.id, date);
       onDateSet(updated);
-    } catch (err: any) {
-      setDateError(err.message);
+    } catch (err: unknown) {
+      setDateError((err as Error).message);
       setSavingDate(false);
     }
   }
@@ -115,7 +116,6 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
   );
 }
 
-// 注文中エリア用（配達完了で今週の献立へ）
 function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
   meal: Meal;
   onComplete: (updated: Meal) => void;
@@ -211,8 +211,8 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
       setSeason(null);
       setSuccess(true);
       setTimeout(() => setSuccess(false), 2000);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      setError((err as Error).message);
     } finally {
       setLoading(false);
     }
