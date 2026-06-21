@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
   const { id } = req.query;
 
   if (req.method === 'PATCH') {
-    const { date, name, isReady } = req.body;
+    const { date, name, isReady, season } = req.body;
     const properties = {};
     if (name !== undefined) {
       properties['献立'] = { title: [{ text: { content: name } }] };
@@ -26,6 +26,9 @@ module.exports = async function handler(req, res) {
     }
     if (isReady !== undefined) {
       properties['食材あり'] = { checkbox: isReady };
+    }
+    if (season !== undefined) {
+      properties['季節限定'] = season ? { multi_select: [{ name: season }] } : { multi_select: [] };
     }
     if (Object.keys(properties).length === 0) {
       return res.status(400).json({ error: '更新する項目がありません' });

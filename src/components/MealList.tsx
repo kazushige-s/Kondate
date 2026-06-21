@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Title, Text, Badge, Button, Group, Collapse, Loader, TextInput } from '@mantine/core';
-import { revertMealDate, updateMealName } from '../api/meals';
+import { Title, Text, Badge, Button, Group, Collapse, Loader, TextInput, Select } from '@mantine/core';
+import { revertMealDate, updateMealName, updateMealSeason } from '../api/meals';
 import { Meal } from '../types';
 
 interface Props {
@@ -14,6 +14,12 @@ interface Props {
 const SEASON_COLOR: Record<string, string> = {
   春: 'pink', 夏: 'yellow', 秋: 'orange', 冬: 'blue',
 };
+const SEASON_OPTIONS = [
+  { value: '春', label: '春' },
+  { value: '夏', label: '夏' },
+  { value: '秋', label: '秋' },
+  { value: '冬', label: '冬' },
+];
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 function parseLocalDate(dateStr: string) {
@@ -38,18 +44,25 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
 }) {
   const [editing, setEditing] = useState(false);
   const [editName, setEditName] = useState(meal.name);
-  const [savingName, setSavingName] = useState(false);
+  const [editSeason, setEditSeason] = useState<string | null>(meal.season);
+  const [saving, setSaving] = useState(false);
   const [reverting, setReverting] = useState(false);
 
-  async function handleSaveName() {
+  async function handleSave() {
     if (!editName.trim()) return;
-    setSavingName(true);
+    const nameChanged = editName.trim() !== meal.name;
+    const seasonChanged = editSeason !== meal.season;
+    if (!nameChanged && !seasonChanged) { setEditing(false); return; }
+
+    setSaving(true);
     try {
-      const updated = await updateMealName(meal.id, editName.trim());
+      let updated: Meal = meal;
+      if (nameChanged) updated = await updateMealName(meal.id, editName.trim());
+      if (seasonChanged) updated = await updateMealSeason(meal.id, editSeason);
       onNameUpdated(updated);
       setEditing(false);
     } finally {
-      setSavingName(false);
+      setSaving(false);
     }
   }
 
@@ -64,6 +77,12 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
     }
   }
 
+  function handleCancel() {
+    setEditing(false);
+    setEditName(meal.name);
+    setEditSeason(meal.season);
+  }
+
   if (editing) {
     return (
       <li className="px-4 py-2.5 space-y-2">
@@ -72,14 +91,21 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
           onChange={e => setEditName(e.currentTarget.value)}
           autoFocus
           size="xs"
+          placeholder="料理名"
+        />
+        <Select
+          size="xs"
+          placeholder="通年"
+          data={SEASON_OPTIONS}
+          value={editSeason}
+          onChange={setEditSeason}
+          clearable
         />
         <Group gap="xs">
-          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="orange">
+          <Button size="xs" loading={saving} disabled={!editName.trim()} onClick={handleSave} color="orange">
             保存
           </Button>
-          <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
-            ✕
-          </Button>
+          <Button size="xs" variant="default" onClick={handleCancel}>✕</Button>
         </Group>
       </li>
     );
@@ -115,7 +141,6 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
 
   const months = Object.keys(byMonth);
 
-  // 全月を折り畳んだ状態で開始。openedに追加された月のみ展開する
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
   if (loading) return <div className="flex justify-center py-16"><Loader color="orange" /></div>;

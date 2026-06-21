@@ -119,6 +119,21 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
     return byDate;
   }, [meals]);
 
+  // 今の季節限定メニュー
+  const season = currentSeason();
+  const currentSeasonMeals = useMemo(() => {
+    if (!season) return [];
+    const seen = new Set<string>();
+    const result: string[] = [];
+    for (const meal of meals) {
+      if (meal.season === season && !seen.has(meal.name)) {
+        seen.add(meal.name);
+        result.push(meal.name);
+      }
+    }
+    return result;
+  }, [meals, season]);
+
   // 1ヶ月以上食べていない
   const forgottenMeals = useMemo(() => {
     const season = currentSeason();
@@ -157,6 +172,23 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
           <Text c="dimmed" size="sm">献立データがありません</Text>
         )}
       </div>
+
+      {/* 今の季節限定 */}
+      {season && (
+        <SectionCard title={`季節限定（${season}）`} badge={`${currentSeasonMeals.length}品`} defaultOpen>
+          {currentSeasonMeals.length === 0 ? (
+            <Text size="sm" c="dimmed">今の季節の献立はまだ登録されていません</Text>
+          ) : (
+            <ul className="space-y-1">
+              {currentSeasonMeals.map((name, i) => (
+                <li key={i} className="py-1.5">
+                  <Text size="sm">{name}</Text>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SectionCard>
+      )}
 
       {/* 1ヶ月以上食べていない */}
       <SectionCard

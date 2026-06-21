@@ -50,6 +50,19 @@ export async function setMealReady(id: string, isReady: boolean): Promise<Meal> 
   return res.json();
 }
 
+export async function updateMealSeason(id: string, season: string | null): Promise<Meal> {
+  const res = await fetch(`${API_BASE}/meals/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ season }),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? '更新に失敗しました');
+  }
+  return res.json();
+}
+
 export async function revertMealDate(id: string): Promise<Meal> {
   const res = await fetch(`${API_BASE}/meals/${id}`, {
     method: 'PATCH',
