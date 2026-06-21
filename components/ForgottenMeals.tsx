@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Title, Text, Button, Badge, Loader, Collapse } from '@mantine/core';
+import { Title, Text, Button, Badge, Loader } from '@mantine/core';
 import type { Meal, Season } from '@/types';
 
 interface Props {
@@ -63,9 +63,15 @@ function SectionCard({ title, badge, defaultOpen = false, children }: {
           <span className="text-gray-400 text-xs">{open ? '▲' : '▼'}</span>
         </span>
       </button>
-      <Collapse expanded={open}>
+      <div
+        style={{
+          maxHeight: open ? '9999px' : 0,
+          overflow: 'hidden',
+          transition: 'max-height 0.25s ease',
+        }}
+      >
         <div className="border-t border-gray-100 px-4 py-3">{children}</div>
-      </Collapse>
+      </div>
     </div>
   );
 }

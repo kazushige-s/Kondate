@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Paper, TextInput, Select, Button, Group, Stack, Title, Text, SegmentedControl } from '@mantine/core';
+import { Paper, TextInput, Button, Group, Stack, Title, Text, SegmentedControl } from '@mantine/core';
 import { addMeal, updateMealName, updateMealDate, deleteMeal, setMealReady } from '@/lib/meals-api';
 import type { Meal, Season } from '@/types';
 
@@ -15,12 +15,7 @@ interface Props {
   onDeleted: (id: string) => void;
 }
 
-const SEASON_OPTIONS = [
-  { value: '春', label: '春' },
-  { value: '夏', label: '夏' },
-  { value: '秋', label: '秋' },
-  { value: '冬', label: '冬' },
-];
+const SEASON_OPTIONS = ['春', '夏', '秋', '冬'];
 
 function todayString(): string {
   const d = new Date();
@@ -253,14 +248,17 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
                 />
               </div>
             )}
-            <Select
-              label="季節限定（任意）"
-              placeholder="通年"
-              data={SEASON_OPTIONS}
-              value={season}
-              onChange={setSeason}
-              clearable
-            />
+            <div>
+              <Text size="sm" fw={500} mb={4}>季節限定（任意）</Text>
+              <select
+                value={season ?? ''}
+                onChange={e => setSeason(e.target.value || null)}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500 bg-white"
+              >
+                <option value="">通年</option>
+                {SEASON_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
             {error && <Text size="sm" c="red">{error}</Text>}
             {success && <Text size="sm" c="orange" fw={600}>追加しました！</Text>}
             <Button type="submit" loading={loading} disabled={!name.trim()} fullWidth color="orange">

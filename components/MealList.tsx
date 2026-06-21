@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Title, Text, Badge, Button, Group, Loader, TextInput, Select } from '@mantine/core';
+import { Title, Text, Badge, Button, Group, Loader, TextInput } from '@mantine/core';
 import { revertMealDate, updateMealName, updateMealSeason } from '@/lib/meals-api';
 import type { Meal } from '@/types';
 
@@ -16,12 +16,7 @@ interface Props {
 const SEASON_COLOR: Record<string, string> = {
   春: 'pink', 夏: 'yellow', 秋: 'orange', 冬: 'blue',
 };
-const SEASON_OPTIONS = [
-  { value: '春', label: '春' },
-  { value: '夏', label: '夏' },
-  { value: '秋', label: '秋' },
-  { value: '冬', label: '冬' },
-];
+const SEASON_OPTIONS = ['春', '夏', '秋', '冬'];
 const WEEKDAYS = ['日', '月', '火', '水', '木', '金', '土'];
 
 function parseLocalDate(dateStr: string) {
@@ -95,14 +90,14 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
           size="xs"
           placeholder="料理名"
         />
-        <Select
-          size="xs"
-          placeholder="通年"
-          data={SEASON_OPTIONS}
-          value={editSeason}
-          onChange={setEditSeason}
-          clearable
-        />
+        <select
+          value={editSeason ?? ''}
+          onChange={e => setEditSeason(e.target.value || null)}
+          className="w-full border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500 bg-white"
+        >
+          <option value="">通年</option>
+          {SEASON_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}
+        </select>
         <Group gap="xs">
           <Button size="xs" loading={saving} disabled={!editName.trim()} onClick={handleSave} color="orange">保存</Button>
           <Button size="xs" variant="default" onClick={handleCancel}>✕</Button>
