@@ -136,7 +136,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [meals]);
 
-  if (loading) return <div className="flex justify-center py-16"><Loader color="teal" /></div>;
+  if (loading) return <div className="flex justify-center py-16"><Loader color="orange" /></div>;
   if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
 
   const lastMonthDates = Object.keys(lastMonthWeekMeals);
@@ -150,8 +150,8 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
         <Text size="xs" c="dimmed" mb="xs">今日はこれはどうですか？</Text>
         {randomMeal ? (
           <>
-            <Title order={3} mb="sm" style={{ color: '#2d7a5a' }}>{randomMeal}</Title>
-            <Button variant="light" color="teal" size="xs" onClick={reroll}>もう一度</Button>
+            <Title order={3} mb="sm" style={{ color: '#F97316' }}>{randomMeal}</Title>
+            <Button variant="light" color="orange" size="xs" onClick={reroll}>もう一度</Button>
           </>
         ) : (
           <Text c="dimmed" size="sm">献立データがありません</Text>
@@ -189,7 +189,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
           <div className="space-y-3">
             {lastMonthDates.map(date => (
               <div key={date}>
-                <Text size="xs" fw={700} c="teal" mb={2}>{formatMonthDay(date)}</Text>
+                <Text size="xs" fw={700} c="orange" mb={2}>{formatMonthDay(date)}</Text>
                 <ul className="pl-2 space-y-0.5">
                   {lastMonthWeekMeals[date].map((name, i) => (
                     <li key={i}><Text size="sm">{name}</Text></li>
@@ -217,7 +217,7 @@ export default function ForgottenMeals({ meals, loading, error }: Props) {
                   {i + 1}
                 </span>
                 <Text size="sm" className="flex-1 min-w-0 truncate">{name}</Text>
-                <Badge size="xs" color="teal" variant="light">{count}回</Badge>
+                <Badge size="xs" color="orange" variant="light">{count}回</Badge>
               </li>
             ))}
           </ol>

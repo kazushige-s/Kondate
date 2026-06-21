@@ -1,5 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { AppShell, Group, Title } from '@mantine/core';
+import {
+  MdAddCircle, MdAddCircleOutline,
+  MdRestaurantMenu, MdOutlineRestaurantMenu,
+  MdLightbulb, MdOutlineLightbulb,
+} from 'react-icons/md';
 import './App.css';
 import { getMeals } from './api/meals';
 import { Meal, Tab } from './types';
@@ -7,10 +12,12 @@ import AddMeal from './components/AddMeal';
 import MealList from './components/MealList';
 import ForgottenMeals from './components/ForgottenMeals';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'add', label: '登録', icon: '＋' },
-  { id: 'list', label: '一覧', icon: '≡' },
-  { id: 'forgotten', label: 'リマインド', icon: '！' },
+const BRAND = '#F97316';
+
+const TABS = [
+  { id: 'add'       as Tab, label: '登録',      Active: MdAddCircle        as React.ElementType, Inactive: MdAddCircleOutline        as React.ElementType },
+  { id: 'list'      as Tab, label: '一覧',      Active: MdRestaurantMenu   as React.ElementType, Inactive: MdOutlineRestaurantMenu   as React.ElementType },
+  { id: 'forgotten' as Tab, label: 'リマインド', Active: MdLightbulb        as React.ElementType, Inactive: MdOutlineLightbulb        as React.ElementType },
 ];
 
 export default function App() {
@@ -43,15 +50,18 @@ export default function App() {
   const datedMeals    = meals.filter(m => m.date);
 
   return (
-    <AppShell header={{ height: 56 }} footer={{ height: 64 }}>
+    <AppShell header={{ height: 56 }}>
       <AppShell.Header>
-        <Group h="100%" px="md" style={{ background: '#2d7a5a' }}>
+        <Group h="100%" px="md" style={{ background: BRAND }}>
           <Title order={4} c="white">我が家の献立</Title>
         </Group>
       </AppShell.Header>
 
       <AppShell.Main className="bg-gray-50">
-        <div className="max-w-lg mx-auto px-4 py-5 pb-8">
+        <div
+          className="max-w-lg mx-auto px-4 py-5"
+          style={{ paddingBottom: 'calc(88px + env(safe-area-inset-bottom))' }}
+        >
           {tab === 'add' && (
             <AddMeal
               onAdded={handleAdded}
@@ -72,23 +82,59 @@ export default function App() {
         </div>
       </AppShell.Main>
 
-      <AppShell.Footer>
-        <nav className="flex h-full border-t border-gray-200">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={[
-                'flex-1 flex flex-col items-center justify-center gap-0.5 text-xs font-medium transition-colors',
-                tab === t.id ? 'text-[#2d7a5a]' : 'text-gray-400',
-              ].join(' ')}
-            >
-              <span className="text-xl leading-none">{t.icon}</span>
-              <span>{t.label}</span>
-            </button>
-          ))}
+      {/* フローティングナビゲーション */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        display: 'flex',
+        justifyContent: 'center',
+        paddingBottom: 'max(16px, env(safe-area-inset-bottom))',
+        paddingTop: 8,
+        pointerEvents: 'none',
+      }}>
+        <nav style={{
+          display: 'flex',
+          gap: 4,
+          background: 'rgba(255, 255, 255, 0.92)',
+          backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)',
+          borderRadius: 40,
+          boxShadow: '0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)',
+          padding: '6px 6px',
+          pointerEvents: 'auto',
+        }}>
+          {TABS.map(t => {
+            const isActive = tab === t.id;
+            const Icon = isActive ? t.Active : t.Inactive;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: 2,
+                  padding: '10px 20px',
+                  borderRadius: 32,
+                  border: 'none',
+                  background: isActive ? BRAND : 'transparent',
+                  color: isActive ? 'white' : '#9CA3AF',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  minWidth: 68,
+                }}
+              >
+                <Icon size={22} />
+                <span style={{ fontSize: 10, fontWeight: 600, lineHeight: 1 }}>{t.label}</span>
+              </button>
+            );
+          })}
         </nav>
-      </AppShell.Footer>
+      </div>
     </AppShell>
   );
 }

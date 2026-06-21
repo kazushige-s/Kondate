@@ -85,7 +85,7 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
           size="xs"
         />
         <Group gap="xs">
-          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">保存</Button>
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="orange">保存</Button>
           <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>✕</Button>
         </Group>
       </li>
@@ -106,9 +106,9 @@ function ReadyMealRow({ meal, onDateSet, onNameUpdated, onDeleted }: {
           type="date"
           value={date}
           onChange={e => setDate(e.target.value)}
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-teal-600"
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-orange-500"
         />
-        <Button size="xs" loading={savingDate} onClick={handleEaten} color="teal">食べた</Button>
+        <Button size="xs" loading={savingDate} onClick={handleEaten} color="orange">食べた</Button>
       </Group>
       {dateError && <Text size="xs" c="red">{dateError}</Text>}
     </li>
@@ -171,7 +171,7 @@ function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
           size="xs"
         />
         <Group gap="xs">
-          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">保存</Button>
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="orange">保存</Button>
           <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>✕</Button>
         </Group>
       </li>
@@ -183,7 +183,7 @@ function OrderingRow({ meal, onComplete, onNameUpdated, onDeleted }: {
       <Text size="sm" className="flex-1 min-w-0 truncate">{meal.name}</Text>
       <Button size="xs" variant="subtle" color="gray" onClick={() => setEditing(true)}>編集</Button>
       <Button size="xs" variant="subtle" color="red" loading={deleting} onClick={handleDelete}>削除</Button>
-      <Button size="xs" variant="light" color="teal" loading={savingComplete} onClick={handleComplete}>配達完了</Button>
+      <Button size="xs" variant="light" color="orange" loading={savingComplete} onClick={handleComplete}>配達完了</Button>
     </li>
   );
 }
@@ -232,7 +232,7 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
                 { value: 'ate', label: '食べた' },
               ]}
               fullWidth
-              color="teal"
+              color="orange"
             />
             <TextInput
               label="料理名"
@@ -249,7 +249,7 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
                   type="date"
                   value={date}
                   onChange={e => setDate(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-teal-600"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500"
                 />
               </div>
             )}
@@ -262,8 +262,8 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
               clearable
             />
             {error && <Text size="sm" c="red">{error}</Text>}
-            {success && <Text size="sm" c="teal" fw={600}>追加しました！</Text>}
-            <Button type="submit" loading={loading} disabled={!name.trim()} fullWidth color="teal">
+            {success && <Text size="sm" c="orange" fw={600}>追加しました！</Text>}
+            <Button type="submit" loading={loading} disabled={!name.trim()} fullWidth color="orange">
               追加する
             </Button>
           </Stack>

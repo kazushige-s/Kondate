@@ -74,7 +74,7 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
           size="xs"
         />
         <Group gap="xs">
-          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="teal">
+          <Button size="xs" loading={savingName} disabled={!editName.trim()} onClick={handleSaveName} color="orange">
             保存
           </Button>
           <Button size="xs" variant="default" onClick={() => { setEditing(false); setEditName(meal.name); }}>
@@ -92,7 +92,7 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
         <Badge size="xs" color={SEASON_COLOR[meal.season]} variant="light">{meal.season}</Badge>
       )}
       <Button size="xs" variant="subtle" color="gray" onClick={() => setEditing(true)}>編集</Button>
-      <Button size="xs" variant="subtle" color="teal" loading={reverting} onClick={handleRevert}>戻す</Button>
+      <Button size="xs" variant="subtle" color="orange" loading={reverting} onClick={handleRevert}>戻す</Button>
     </li>
   );
 }
@@ -118,7 +118,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
   // 全月を折り畳んだ状態で開始。openedに追加された月のみ展開する
   const [opened, setOpened] = useState<Set<string>>(new Set());
 
-  if (loading) return <div className="flex justify-center py-16"><Loader color="teal" /></div>;
+  if (loading) return <div className="flex justify-center py-16"><Loader color="orange" /></div>;
   if (error) return <Text c="red" ta="center" py="xl">{error}</Text>;
   if (meals.length === 0) return <Text c="dimmed" ta="center" py="xl">まだ登録されていません</Text>;
 
@@ -155,7 +155,7 @@ export default function MealList({ meals, loading, error, onReverted, onNameUpda
               <div className="border-t border-gray-100">
                 {dates.map(date => (
                   <div key={date}>
-                    <div className="bg-teal-50 text-teal-700 text-xs font-bold px-4 py-1.5">
+                    <div className="bg-orange-50 text-orange-600 text-xs font-bold px-4 py-1.5">
                       {formatDate(date)}
                     </div>
                     <ul className="divide-y divide-gray-50">
