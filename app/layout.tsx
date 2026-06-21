@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { ColorSchemeScript } from '@mantine/core';
 import '@mantine/core/styles.css';
 import './globals.css';
 import { MantineSetup } from '@/components/MantineSetup';
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ja">
       <head>
+        <ColorSchemeScript defaultColorScheme="light" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>

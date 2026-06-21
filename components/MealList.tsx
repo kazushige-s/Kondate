@@ -93,7 +93,7 @@ function MealRow({ meal, onReverted, onNameUpdated }: {
         <select
           value={editSeason ?? ''}
           onChange={e => setEditSeason(e.target.value || null)}
-          className="w-full border border-gray-300 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500 bg-white"
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-2 py-1 text-sm focus:outline-none focus:border-orange-500 bg-white dark:bg-gray-800 dark:text-gray-100"
         >
           <option value="">通年</option>
           {SEASON_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}

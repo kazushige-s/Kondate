@@ -253,7 +253,7 @@ export default function AddMeal({ onAdded, orderingMeals, readyMeals, onComplete
               <select
                 value={season ?? ''}
                 onChange={e => setSeason(e.target.value || null)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500 bg-white"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-orange-500 bg-white dark:bg-gray-800 dark:text-gray-100"
               >
                 <option value="">通年</option>
                 {SEASON_OPTIONS.map(s => <option key={s} value={s}>{s}</option>)}

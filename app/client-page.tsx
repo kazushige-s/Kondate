@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Title } from '@mantine/core';
+import { Title, useMantineColorScheme } from '@mantine/core';
 import {
   MdAddCircle, MdAddCircleOutline,
   MdRestaurantMenu, MdOutlineRestaurantMenu,
   MdLightbulb, MdOutlineLightbulb,
+  MdWbSunny, MdNightlight,
 } from 'react-icons/md';
 import { getMeals } from '@/lib/meals-api';
+import { isDarkInJapan } from '@/lib/sunset';
 import type { Meal, Tab } from '@/types';
 import AddMeal from '@/components/AddMeal';
 import MealList from '@/components/MealList';
@@ -27,12 +29,29 @@ export default function ClientPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === 'dark';
+
   useEffect(() => {
     getMeals()
       .then(setMeals)
       .catch(err => setError((err as Error).message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    // Auto-detect based on Japan sunset if user has no manual preference
+    const isManual = localStorage.getItem('kondate-manual-theme');
+    if (!isManual) {
+      setColorScheme(isDarkInJapan() ? 'dark' : 'light');
+    }
+  }, [setColorScheme]);
+
+  function toggleDarkMode() {
+    const next = isDark ? 'light' : 'dark';
+    setColorScheme(next);
+    localStorage.setItem('kondate-manual-theme', next);
+  }
 
   function update(updated: Meal) {
     setMeals(prev => prev.map(m => m.id === updated.id ? updated : m));
@@ -50,8 +69,11 @@ export default function ClientPage() {
   const readyMeals    = meals.filter(m => !m.date && m.isReady);
   const datedMeals    = meals.filter(m => m.date);
 
+  const navBg = isDark ? 'rgba(30, 31, 34, 0.92)' : 'rgba(255, 255, 255, 0.92)';
+  const navInactiveColor = isDark ? '#6B7280' : '#9CA3AF';
+
   return (
-    <div style={{ background: '#F9FAFB', minHeight: '100dvh' }}>
+    <div style={{ background: 'var(--mantine-color-body)', minHeight: '100dvh' }}>
       <header style={{
         position: 'fixed',
         top: 0,
@@ -61,8 +83,34 @@ export default function ClientPage() {
         background: BRAND,
         paddingTop: 'env(safe-area-inset-top)',
       }}>
-        <div style={{ height: 56, display: 'flex', alignItems: 'center', paddingLeft: 16 }}>
+        <div style={{
+          height: 56,
+          display: 'flex',
+          alignItems: 'center',
+          paddingLeft: 16,
+          paddingRight: 12,
+          justifyContent: 'space-between',
+        }}>
           <Title order={4} c="white">我が家の献立</Title>
+          <button
+            onClick={toggleDarkMode}
+            aria-label={isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+            style={{
+              background: 'rgba(255,255,255,0.15)',
+              border: 'none',
+              borderRadius: 8,
+              width: 36,
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: 'white',
+              transition: 'background 0.15s ease',
+            }}
+          >
+            {isDark ? <MdWbSunny size={20} /> : <MdNightlight size={20} />}
+          </button>
         </div>
       </header>
 
@@ -106,11 +154,13 @@ export default function ClientPage() {
         <nav style={{
           display: 'flex',
           gap: 4,
-          background: 'rgba(255, 255, 255, 0.92)',
+          background: navBg,
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
           borderRadius: 40,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)',
+          boxShadow: isDark
+            ? '0 4px 24px rgba(0,0,0,0.5), 0 1px 4px rgba(0,0,0,0.3)'
+            : '0 4px 24px rgba(0,0,0,0.12), 0 1px 4px rgba(0,0,0,0.06)',
           padding: '6px 6px',
           pointerEvents: 'auto',
         }}>
@@ -130,7 +180,7 @@ export default function ClientPage() {
                   borderRadius: 32,
                   border: 'none',
                   background: isActive ? BRAND : 'transparent',
-                  color: isActive ? 'white' : '#9CA3AF',
+                  color: isActive ? 'white' : navInactiveColor,
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   minWidth: 68,
