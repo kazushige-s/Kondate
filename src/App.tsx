@@ -6,11 +6,9 @@ import { Meal, Tab } from './types';
 import AddMeal from './components/AddMeal';
 import MealList from './components/MealList';
 import ForgottenMeals from './components/ForgottenMeals';
-import ThisWeek from './components/ThisWeek';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'add', label: '登録', icon: '＋' },
-  { id: 'thisweek', label: '今週', icon: '📅' },
   { id: 'list', label: '一覧', icon: '≡' },
   { id: 'forgotten', label: 'リマインド', icon: '！' },
 ];
@@ -40,13 +38,9 @@ export default function App() {
     setMeals(prev => prev.filter(m => m.id !== id));
   }
 
-  function handleReverted(updated: Meal) {
-    update(updated);
-  }
-
   const orderingMeals = meals.filter(m => !m.date && !m.isReady);
-  const readyMeals   = meals.filter(m => !m.date && m.isReady);
-  const datedMeals   = meals.filter(m => m.date);
+  const readyMeals    = meals.filter(m => !m.date && m.isReady);
+  const datedMeals    = meals.filter(m => m.date);
 
   return (
     <AppShell header={{ height: 56 }} footer={{ height: 64 }}>
@@ -62,23 +56,15 @@ export default function App() {
             <AddMeal
               onAdded={handleAdded}
               orderingMeals={orderingMeals}
+              readyMeals={readyMeals}
               onComplete={update}
-              onNameUpdated={update}
-              onDeleted={handleDeleted}
-            />
-          )}
-          {tab === 'thisweek' && (
-            <ThisWeek
-              meals={readyMeals}
-              loading={loading}
-              error={error}
               onDateSet={update}
               onNameUpdated={update}
               onDeleted={handleDeleted}
             />
           )}
           {tab === 'list' && (
-            <MealList meals={datedMeals} loading={loading} error={error} onReverted={handleReverted} onNameUpdated={update} />
+            <MealList meals={datedMeals} loading={loading} error={error} onReverted={update} onNameUpdated={update} />
           )}
           {tab === 'forgotten' && (
             <ForgottenMeals meals={datedMeals} loading={loading} error={error} />

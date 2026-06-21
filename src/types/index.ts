@@ -8,4 +8,4 @@ export interface Meal {
   isReady: boolean;
 }
 
-export type Tab = 'add' | 'thisweek' | 'list' | 'forgotten';
+export type Tab = 'add' | 'list' | 'forgotten';
